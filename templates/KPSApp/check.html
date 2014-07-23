@@ -1,0 +1,18 @@
+{% extends 'KPSApp/base.html' %}
+{% load lookup %}
+{% block title_block %}Проверка на стаи{% endblock %}
+{% block container_block %}
+    <h1>Проверка на стаи:</h1>
+    {% if error %}
+        {{ error }}
+    {% endif %}
+
+    <form action="{% url 'KPS-check' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Намери стаите!" />
+    </form>
+    {% for room in rooms_order %}
+        <strong>Стая {{ room }}:</strong> {{ rooms|lookup:room }}<br>
+    {% endfor %}
+{% endblock %}
