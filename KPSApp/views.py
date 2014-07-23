@@ -7,13 +7,21 @@ import string
 
 # Create your views here.
 def index(request):
-    return render(request, 'KPSApp/index.html')
+    context_dictionary = {
+        'page': 'index'
+    }
+    return render(request, 'KPSApp/index.html', context_dictionary)
 
 def about(request):
-    return render(request, 'KPSApp/about.html')
+    context_dictionary = {
+        'page': 'about'
+    }
+    return render(request, 'KPSApp/about.html', context_dictionary)
 
 def check(request):
-    context_dictionary = {}
+    context_dictionary = {
+        'page': 'check'
+    }
     if request.method == 'POST':
         form = CheckForm(request.POST)
 
@@ -92,7 +100,6 @@ def check(request):
                 for room in rooms:
 
                     room.strip()
-                    rooms_order.append(room)
                     try:
                         if int(room) in rooms_up:
                             rooms_dict.update({room: 'Стаята се намира направо. ^'})
@@ -100,6 +107,8 @@ def check(request):
                             rooms_dict.update({room: 'Стаята се намира надясно. >'})
                         else:
                             rooms_dict.update({room: 'Няма такава стая.'})
+
+                        rooms_order.append(room)
                     except ValueError:
                         continue
                 context_dictionary['rooms_order'] = rooms_order
