@@ -1,15 +1,42 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 
-from KPSApp.forms import CheckForm
+from KPSApp.forms import LoginForm, CheckForm
 
 import string
+import time
 
 # Create your views here.
 def index(request):
     context_dictionary = {
         'page': 'index'
     }
+
+    is_logged = request.session.get('is_logged', False)
+    print is_logged
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
+
+            if username=='kps' and password=='kps':
+                request.session['is_logged'] = True
+                request.session['username'] = 'kps'
+                if request.POST['remember_me']:
+                    day_seconds = 24 * 60 * 60
+                    request.session.set_expiry(day_seconds)
+                    request.session['session_expiry'] = int(time.time())+day_seconds
+                else:
+                    request.session.set_expiry(0)
+                    request.session['session_expiry'] = 0
+                context_dictionary['login_message'] = 'Успешно влязохте в акаунта на х-л "Компас"!'
+            else:
+                context_dictionary['login_message'] = 'Грешно потребителско име или парола!'
+
+        context_dictionary['form'] = form
+
     return render(request, 'KPSApp/index.html', context_dictionary)
 
 def about(request):

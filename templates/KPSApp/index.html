@@ -2,5 +2,43 @@
 {% block title_block %}Добре дошли в системата!{% endblock %}
 {% block container_block %}
     <h1>Добре дошли в системата!</h1>
-    <p>Моля изберете опция от менюто!</p>
+    <hr/>
+    {% if not request.session.is_logged %}
+        <p>За да използвате системата е необходимо да влезете в съответния акаунт. Името и паролата са записани на информационния лист. Надявам се системата да Ви е полезна. :P</p>
+        <form method="POST" action="{% url 'KPS-index' %}" role="form" class="form-signin">
+            {% csrf_token %}
+            <h2 class="form-signin-heading">Вход</h2>
+            <input type="text" name="username" autofocus="" required="" placeholder="Потребителско име" class="form-control" maxlength="32">
+            <input type="password" name="password" required="" placeholder="Парола" class="form-control" maxlength="32">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="remember_me" value=""> Запомни ме за 24 часа
+                </label>
+            </div>
+            <input type="submit" name="submit" class="btn btn-lg btn-primary btn-block" value="Вход">
+        </form>
+        {% for field in form %}
+            {{ field.errors }}
+        {% endfor %}
+    {% else %}
+        <p>
+            Вашият акаунт: <strong>{{ request.session.username }}</strong><br>
+            Сесията ви изтича: <strong>
+                {% ifequal request.session.session_expiry 0 %}
+                    след затваряне на браузъра
+                {% else %}
+                    {{ request.session.session_expiry|date:"d.m.Y в H:i:s" }}
+                {% endifequal %}
+            </strong>
+        </p>
+    {% endif %}
+    
+    {% if login_message %}
+        {% if request.session.is_logged %}
+            <div class="alert-box success"><span>ок: </span>{{ login_message }}</div>
+        {% else %}
+            <div class="alert-box error"><span>грешка: </span>{{ login_message }}</div>
+        {% endif %}
+    {% endif %}
+
 {% endblock %}
