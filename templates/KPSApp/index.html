@@ -27,7 +27,8 @@
                 {% ifequal request.session.session_expiry 0 %}
                     след затваряне на браузъра
                 {% else %}
-                    {{ request.session.session_expiry|date:"d.m.Y в H:i:s" }}
+                    {% load timestamp %}
+                    {{ request.session.session_expiry|timestamp|date:"d.m.Y в H:i:s" }}
                 {% endifequal %}
             </strong>
         </p>

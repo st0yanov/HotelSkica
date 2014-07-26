@@ -21,6 +21,7 @@
                     <a class="blog-nav-item {% ifequal page "about" %}active{% endifequal %}" href="{% url 'KPS-about' %}">За инструмента</a>
                     {% if request.session.is_logged %}
                         <a class="blog-nav-item {% ifequal page "check" %}active{% endifequal %}" href="{% url 'KPS-check' %}">Провери стаи</a>
+                        <a class="blog-nav-item {% ifequal page "logout" %}active{% endifequal %}" href="{% url 'KPS-logout' %}">Изход</a>
                     {% endif %}
                 </nav>
             </div>

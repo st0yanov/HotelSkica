@@ -13,7 +13,8 @@
         {{ form.as_p }}
         <input type="submit" value="Намери стаите!" />
     </form>
+    <hr>
     {% for room in rooms_order %}
-        <strong>Стая {{ room }}:</strong> {{ rooms|lookup:room }}<br>
+        <div class="{% cycle 'odd' 'even' %}"><strong>Стая {{ room }}:</strong> {{ rooms|lookup:room }}</div>
     {% endfor %}
 {% endblock %}

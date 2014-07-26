@@ -61,6 +61,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.request',
+)
+
 ROOT_URLCONF = 'HotelSkica.urls'
 
 WSGI_APPLICATION = 'HotelSkica.wsgi.application'

@@ -6,6 +6,13 @@ from KPSApp.forms import LoginForm, CheckForm
 import string
 import time
 
+from django.http import HttpResponse, HttpResponseRedirect
+
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Spacer, Table, TableStyle
+
 # Create your views here.
 def index(request):
     context_dictionary = {
@@ -13,8 +20,8 @@ def index(request):
     }
 
     is_logged = request.session.get('is_logged', False)
-    print is_logged
-    if request.method == 'POST':
+    
+    if request.method == 'POST' and not is_logged:
         form = LoginForm(request.POST)
 
         if form.is_valid():
@@ -24,7 +31,7 @@ def index(request):
             if username=='kps' and password=='kps':
                 request.session['is_logged'] = True
                 request.session['username'] = 'kps'
-                if request.POST['remember_me']:
+                if 'remember_me' in request.POST:
                     day_seconds = 24 * 60 * 60
                     request.session.set_expiry(day_seconds)
                     request.session['session_expiry'] = int(time.time())+day_seconds
@@ -46,6 +53,12 @@ def about(request):
     return render(request, 'KPSApp/about.html', context_dictionary)
 
 def check(request):
+    if 'is_logged' not in request.session:
+        return HttpResponseRedirect('/kps')
+
+
+    print request.session['session_expiry']
+
     context_dictionary = {
         'page': 'check'
     }
@@ -147,3 +160,41 @@ def check(request):
 
     context_dictionary['form'] = form
     return render(request, 'KPSApp/check.html', context_dictionary)
+
+def logout(request):
+    if request.session.get('is_logged', False):
+        request.session.flush()
+    return HttpResponseRedirect('/kps')
+
+def generate_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="RoomsDirections.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=letter)
+
+    data = [
+        ['Стая', 'Посока'],
+        ['101', '>>>'],
+        ['102', "^^^"],
+        ['103', ">>>"],
+    ]
+
+    parts = []
+    #table = Table(data, [3 * inch, 1.5 * inch, inch])
+    table_with_style = Table(data, [1.5 * inch, 3 * inch])
+
+    table_with_style.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), 'Courier'),
+        ('FONT', (0, 0), (-1, 0), 'Courier'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+        ('BOX', (0, 0), (-1, 0), 0.25, colors.green),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+    ]))
+
+    #parts.append(table)
+    #parts.append(Spacer(1, 0.5 * inch))
+    parts.append(table_with_style)
+    doc.build(parts)
+
+    return response
