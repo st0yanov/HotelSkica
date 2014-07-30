@@ -8,10 +8,13 @@ import time
 
 from django.http import HttpResponse, HttpResponseRedirect
 
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Spacer, Table, TableStyle
+import cStringIO as StringIO
+import xhtml2pdf.pisa as pisa
+from django.template.loader import get_template
+from django.template import Context
+from cgi import escape
+
+from django.conf import settings
 
 # Create your views here.
 def index(request):
@@ -141,10 +144,21 @@ def check(request):
 
                     room.strip()
                     try:
-                        if int(room) in rooms_up:
-                            rooms_dict.update({room: 'Стаята се намира направо. ^'})
-                        elif int(room) in rooms_right:
-                            rooms_dict.update({room: 'Стаята се намира надясно. >'})
+                        room_int = int(room)
+                        if room_int in rooms_up:
+                            if room_int < 200:
+                                rooms_dict.update({room: 'Стаята се намира направо ^ на 1 етаж.'})
+                            elif room_int < 300:
+                                rooms_dict.update({room: 'Стаята се намира направо ^ на 2 етаж.'})
+                            else:
+                                rooms_dict.update({room: 'Стаята се намира направо ^ на 3 етаж.'})
+                        elif room_int in rooms_right:
+                            if room_int < 200:
+                                rooms_dict.update({room: 'Стаята се намира надясно > на 1 етаж.'})
+                            elif room_int < 300:
+                                rooms_dict.update({room: 'Стаята се намира надясно > на 2 етаж.'})
+                            else:
+                                rooms_dict.update({room: 'Стаята се намира надясно > на 3 етаж.'})
                         else:
                             rooms_dict.update({room: 'Няма такава стая.'})
 
@@ -166,35 +180,24 @@ def logout(request):
         request.session.flush()
     return HttpResponseRedirect('/kps')
 
+def render_to_pdf(template_src, context_dict):
+    template = get_template(template_src)
+    context_dict.update({'static': settings.STATIC_PATH})
+    context = Context(context_dict)
+    html = template.render(context)
+    result = StringIO.StringIO()
+
+    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result, encoding='UTF-8', show_error_as_pdf=True)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), mimetype='application/pdf')
+    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
+
 def generate_pdf(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="RoomsDirections.pdf"'
+    if request.method == 'POST':
+        context_dict = {
+            'rooms_order': eval(request.POST['rooms_order']),
+            'rooms': eval(request.POST['rooms']),
+            'datetime': int(time.time())
+        }
 
-    doc = SimpleDocTemplate(response, pagesize=letter)
-
-    data = [
-        ['Стая', 'Посока'],
-        ['101', '>>>'],
-        ['102', "^^^"],
-        ['103', ">>>"],
-    ]
-
-    parts = []
-    #table = Table(data, [3 * inch, 1.5 * inch, inch])
-    table_with_style = Table(data, [1.5 * inch, 3 * inch])
-
-    table_with_style.setStyle(TableStyle([
-        ('FONT', (0, 0), (-1, -1), 'Courier'),
-        ('FONT', (0, 0), (-1, 0), 'Courier'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-        ('BOX', (0, 0), (-1, 0), 0.25, colors.green),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-    ]))
-
-    #parts.append(table)
-    #parts.append(Spacer(1, 0.5 * inch))
-    parts.append(table_with_style)
-    doc.build(parts)
-
-    return response
+        return render_to_pdf('KPSApp/print_directions.html', context_dict)

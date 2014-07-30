@@ -1,0 +1,57 @@
+{% load lookup %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Test</title>
+        <style type="text/css">
+            @font-face {
+                font-family: Arial;
+                src: url({{static}}/fonts/arial.ttf);
+            }
+
+            body {
+                font-family: Arial;
+            }
+
+            td, th {
+                padding-top: 0.3em;
+                padding-left: 0.3em;
+            }
+
+            .title {
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .even {
+                background-color: #CCCCCC;
+            }
+
+            .tdmain {
+                font-size: 14px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .center {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="title">Списък с посоките на пристигащите стаи</h1>
+        {% load timestamp %}
+        <small class="center">принтирано на {{ datetime|timestamp|date:"d.m.Y в H:i:s" }}</small>
+        <hr>
+        <table border="1">
+            <tr>
+                <td class="even tdmain">Стая</td>
+                <td class="even tdmain">Посока</td>
+            </tr>
+            {% for room in rooms_order %}
+                <tr><td class="{% cycle 'odd' 'even' %}">{{ room }}</td><td class="{% cycle 'odd' 'even' %}">{{ rooms|lookup:room }}</td></tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

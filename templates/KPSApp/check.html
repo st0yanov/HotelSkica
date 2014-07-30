@@ -13,8 +13,17 @@
         {{ form.as_p }}
         <input type="submit" value="Намери стаите!" />
     </form>
-    <hr>
-    {% for room in rooms_order %}
-        <div class="{% cycle 'odd' 'even' %}"><strong>Стая {{ room }}:</strong> {{ rooms|lookup:room }}</div>
-    {% endfor %}
+    {% if rooms_order %}
+        <hr>
+        {% for room in rooms_order %}
+            <div class="{% cycle 'odd' 'even' %}"><strong>Стая {{ room }}:</strong> {{ rooms|lookup:room }}</div>
+        {% endfor %}
+        <hr>
+        <form method="post" action="{% url 'KPS-generate_pdf' %}">
+            {% csrf_token %}
+            <input type="hidden" name="rooms_order" value="{{ rooms_order }}">
+            <input type="hidden" name="rooms" value="{{ rooms }}">
+            <input type="submit" name="submit" value="Принтирай!">
+        </form>
+    {% endif %}
 {% endblock %}
