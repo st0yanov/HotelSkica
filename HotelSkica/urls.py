@@ -10,5 +10,6 @@ urlpatterns = patterns('',
 
     # url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^kps/', include('KPSApp.urls'))
+    url(r'^$', redirect('/kps')),
+    url(r'^kps/', include('KPSApp.urls')),
 )

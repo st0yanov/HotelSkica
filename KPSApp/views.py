@@ -31,9 +31,9 @@ def index(request):
             username = request.POST['username']
             password = request.POST['password']
 
-            if username=='kps' and password=='kps':
+            if username.upper()=='KPS' and password.upper()=='KPS':
                 request.session['is_logged'] = True
-                request.session['username'] = 'kps'
+                request.session['username'] = 'KPS'
                 if 'remember_me' in request.POST:
                     day_seconds = 24 * 60 * 60
                     request.session.set_expiry(day_seconds)
@@ -201,3 +201,5 @@ def generate_pdf(request):
         }
 
         return render_to_pdf('KPSApp/print_directions.html', context_dict)
+    else:
+        return HttpResponseRedirect('/kps')

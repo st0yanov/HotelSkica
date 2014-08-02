@@ -30,14 +30,16 @@ STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7r_#3+ps^o3go&x42pr9(l8dn-zr(gd#mfgny0_+1$2i*lbylq'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '.veskoy.com'
+]
 
 
 # Application definition
@@ -75,9 +77,19 @@ WSGI_APPLICATION = 'HotelSkica.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': ''
+    }
+    '''
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    '''
 }
 
 # Internationalization
@@ -85,7 +97,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Sofia'
 
 USE_I18N = True
 
@@ -101,10 +113,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
 
 # Template dirs
 TEMPLATE_DIRS = (
